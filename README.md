@@ -40,5 +40,16 @@ I/O, sparse/operator object methods, and non-array workflows are explicitly
 reported as deferred or not suitable for AD rather than approximated by finite
 differences.
 
+For a driven lattice, use `FloquetOperator` with a fixed-grid period-operator
+builder and analytic `parameter_derivatives` for the named inputs
+`drive_phase`, `synthetic_gauge`, and `momentum`.  An existing upstream
+`quspin.tools.Floquet.Floquet` object is adapted with
+`floquet_quasienergy_from_object` or `floquet_eigensystem_from_object`; its
+native `UF`, `T`, `EF`, and `VF` remain the forward parity reference.  Physical
+parameter VJPs contract the supplied period-operator Jacobian with the
+quasienergy adjoint.  Missing Jacobians describe a static boundary and
+therefore produce zero physical tangents.  Degenerate eigenvalues and the
+principal branch cut raise `FloquetSpectralGapError`.
+
 The `upstream/` directory is a byte-for-byte snapshot of the official QuSpin
 repository used for API inventory and tests; it is not imported by the wheel.

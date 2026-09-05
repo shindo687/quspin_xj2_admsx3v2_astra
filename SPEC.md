@@ -112,7 +112,11 @@ exponential operators contain adaptive solvers/iterators.  The fixed-grid
 Floquet boundary is provided separately by `floquet_eigensystem` and
 `floquet_quasienergy`: callers pass the already-constructed dense period
 unitary, and the rules differentiate simple eigenvalues and parallel-transport
-eigenvectors.  The principal branch is `arg(lambda) in (-pi, pi]` with
+eigenvectors.  `FloquetOperator` additionally carries a fixed-grid operator
+builder and analytic Jacobians for `drive_phase`, `synthetic_gauge`, and
+`momentum`.  Existing upstream objects use the documented
+`floquet_*_from_object` adapters, preserving native `EF`/`VF` forward parity.
+The principal branch is `arg(lambda) in (-pi, pi]` with
 `epsilon=-arg(lambda)/T`; fixed integer winding arrays select other branches.
 Degenerate eigenvalues and eigenphases on the branch cut raise
 `FloquetSpectralGapError`.  `floquet_projectors` provides phase-invariant

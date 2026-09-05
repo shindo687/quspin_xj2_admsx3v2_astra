@@ -19,11 +19,15 @@ from .rules import (
 )
 from .rules import ad as _ad
 from .floquet import (
+    FloquetOperator,
     FloquetEigensystemResult,
     FloquetSpectralGapError,
+    floquet_adapter,
     floquet_eigensystem,
+    floquet_eigensystem_from_object,
     floquet_projectors,
     floquet_quasienergy,
+    floquet_quasienergy_from_object,
 )
 
 ZERO = _ad.ZERO
@@ -36,6 +40,7 @@ __all__ = [
     "ZERO",
     "ED_state_vs_time",
     "FloquetSpectralGapError",
+    "FloquetOperator",
     "FloquetEigensystemResult",
     "KL_div",
     "anti_commutator",
@@ -43,8 +48,11 @@ __all__ = [
     "commutator",
     "grad",
     "floquet_eigensystem",
+    "floquet_eigensystem_from_object",
+    "floquet_adapter",
     "floquet_projectors",
     "floquet_quasienergy",
+    "floquet_quasienergy_from_object",
     "jvp",
     "lin_comb_Q_T",
     "project_op",

@@ -628,6 +628,18 @@ def register_upstream_rules() -> tuple[str, ...]:
             registered.append(path)
         except (ImportError, ModuleNotFoundError):
             continue
+    # Floquet exposes EF/VF as properties on an object rather than as a
+    # standalone callable.  Registering a property getter cannot preserve the
+    # physical parameter names, so the supported upstream access path is the
+    # explicit ``floquet_*_from_object`` adapter.  Record its availability in
+    # the same registration report while leaving the upstream class untouched.
+    try:
+        _native("quspin.tools.Floquet.Floquet")
+        registered.append(
+            "quspin.tools.Floquet.Floquet -> quspin_ad.floquet_quasienergy_from_object"
+        )
+    except (ImportError, ModuleNotFoundError):
+        pass
     return tuple(registered)
 
 
