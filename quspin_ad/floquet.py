@@ -201,11 +201,21 @@ def _physical_parameters(
     momentum: object,
     parameter_derivatives: Mapping[str, object] | None,
 ) -> tuple[dict[str, object], dict[str, object]]:
-    parameters = {
-        "drive_phase": drive_phase,
-        "synthetic_gauge": synthetic_gauge,
-        "momentum": momentum,
-    }
+    # A FloquetOperator owns the reference point at which its callable
+    # operator and Jacobians are defined.  The AD rule entry points expose
+    # these names with zero-valued Python defaults, so using those arguments
+    # directly would evaluate a callable Jacobian at zero while evaluating UF
+    # at the adapter's stored (possibly nonzero) parameters.  Keep the two
+    # evaluations at the same reference point by resolving parameters from
+    # the adapter whenever one is supplied.
+    if isinstance(UF, FloquetOperator):
+        parameters = dict(UF.parameters)
+    else:
+        parameters = {
+            "drive_phase": drive_phase,
+            "synthetic_gauge": synthetic_gauge,
+            "momentum": momentum,
+        }
     source = dict(parameter_derivatives or {})
     if isinstance(UF, FloquetOperator):
         source = {**UF.parameter_derivatives, **source}

@@ -106,3 +106,62 @@ def test_named_lattice_parameters_and_upstream_adapter() -> None:
     )
     assert np.allclose(value, native)
     assert np.all(np.isfinite(tangent))
+
+
+def test_named_lattice_parameters_use_nonzero_adapter_reference() -> None:
+    phases = np.array([0.2, 0.8, 1.4])
+    weights = {
+        "drive_phase": np.array([1.0, -2.0, 0.5]),
+        "synthetic_gauge": np.array([0.1, 0.3, 0.6]),
+        "momentum": np.array([0.2, 0.4, 0.7]),
+    }
+
+    def operator(drive_phase=0.0, synthetic_gauge=0.0, momentum=0.0):
+        phase = phases + sum(
+            value * weights[name]
+            for name, value in {
+                "drive_phase": drive_phase,
+                "synthetic_gauge": synthetic_gauge,
+                "momentum": momentum,
+            }.items()
+        )
+        return np.diag(np.exp(1j * phase))
+
+    derivatives = {
+        name: (lambda weight=weight, **params: 1j * np.diag(weight) @ operator(**params))
+        for name, weight in weights.items()
+    }
+    reference = {
+        "drive_phase": 0.37,
+        "synthetic_gauge": 0.41,
+        "momentum": -0.23,
+    }
+    adapter = quspin_ad.FloquetOperator(
+        operator, 2.0, **reference, parameter_derivatives=derivatives
+    )
+    cotangent = np.array([0.4, -0.7, 0.9])
+    step = 1e-6
+    for name in weights:
+        _, tangent = ad.jvp(
+            quspin_ad.floquet_quasienergy,
+            adapter,
+            adapter.T,
+            tangents={name: 1.0},
+        )
+        plus = dict(reference)
+        minus = dict(reference)
+        plus[name] += step
+        minus[name] -= step
+        finite_difference = (
+            quspin_ad.floquet_quasienergy(operator(**plus), adapter.T)
+            - quspin_ad.floquet_quasienergy(operator(**minus), adapter.T)
+        ) / (2 * step)
+        assert np.allclose(tangent, finite_difference, rtol=2e-5, atol=2e-6)
+
+        _, pullback = ad.vjp(
+            quspin_ad.floquet_quasienergy, adapter, adapter.T, wrt=(name,)
+        )
+        assert np.allclose(
+            np.dot(cotangent, tangent), pullback(cotangent)[name],
+            rtol=2e-6, atol=2e-6,
+        )
