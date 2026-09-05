@@ -107,8 +107,16 @@ operator constructors, predicates, save/load and block construction perform
 object creation or I/O; sparse matvec helpers are backend dispatch; entropy and
 measurement routines contain sorting, rank changes, SVD/eigenvalue branches or
 discrete subsystem choices; `mean_level_spacing` sorts and branches at ties;
-`evolve`, Floquet, Lanczos eigensolvers and exponential operators contain
-adaptive solvers/iterators.
+`evolve`, the upstream Floquet constructor, Lanczos eigensolvers and
+exponential operators contain adaptive solvers/iterators.  The fixed-grid
+Floquet boundary is provided separately by `floquet_eigensystem` and
+`floquet_quasienergy`: callers pass the already-constructed dense period
+unitary, and the rules differentiate simple eigenvalues and parallel-transport
+eigenvectors.  The principal branch is `arg(lambda) in (-pi, pi]` with
+`epsilon=-arg(lambda)/T`; fixed integer winding arrays select other branches.
+Degenerate eigenvalues and eigenphases on the branch cut raise
+`FloquetSpectralGapError`.  `floquet_projectors` provides phase-invariant
+eigenvector observables.
 Hamiltonian/quantum-operator methods (`dot`, `expt_value`, `matrix_ele`) are
 object-bound and their parameter dictionaries and dynamic drives require an
 explicit adapter contract not present in QuSpin's public API.  These entries

@@ -18,6 +18,13 @@ from .rules import (
     register_upstream_rules,
 )
 from .rules import ad as _ad
+from .floquet import (
+    FloquetEigensystemResult,
+    FloquetSpectralGapError,
+    floquet_eigensystem,
+    floquet_projectors,
+    floquet_quasienergy,
+)
 
 ZERO = _ad.ZERO
 grad = _ad.grad
@@ -28,11 +35,16 @@ vjp = _ad.vjp
 __all__ = [
     "ZERO",
     "ED_state_vs_time",
+    "FloquetSpectralGapError",
+    "FloquetEigensystemResult",
     "KL_div",
     "anti_commutator",
     "coherent_state",
     "commutator",
     "grad",
+    "floquet_eigensystem",
+    "floquet_projectors",
+    "floquet_quasienergy",
     "jvp",
     "lin_comb_Q_T",
     "project_op",
